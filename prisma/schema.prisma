@@ -18,18 +18,18 @@ datasource db {
 
 //represent your table in your db
 model User {
-  id              String       @id @default(uuid())
-  age             Int
-  name            String //? field modifier : ? optional
-  role            Role         @default(BASIC) // simply defualt is basic user sya
-  email           String       @unique //need to be unique
-  userPreferences Preferences?
+  id            String       @id @default(uuid())
+  age           Int
+  name          String //? field modifier : ? optional
+  role          Role         @default(BASIC) // simply defualt is basic user sya
+  email         String       @unique //need to be unique
+  preferences   Preferences? @relation(fields: [preferencesId], references: [id])
+  preferencesId String?      @unique
   // blob Bytes
   // blobs Unsupported("")
   // largeNum BigInt
-  writtenPost     Post[]       @relation("writtenPost")
-  favoritePost    Post[]       @relation("favoritePost")
-  preferencesId   String
+  writtenPost   Post[]       @relation("writtenPost")
+  favoritePost  Post[]       @relation("favoritePost")
 
   //bawal ang same age same name sa user
   //ex... ogel,12 === ogel,12 = not pasok boi
@@ -38,10 +38,9 @@ model User {
 }
 
 model Preferences {
-  id          String  @id @default(uuid())
-  EmailUpdate Boolean
-  User        User    @relation(fields: [UserId], references: [id])
-  UserId      String  @unique
+  id              String  @id @default(uuid())
+  EmailUpdate     Boolean
+  userId          User?
 }
 
 model Post {
