@@ -1,0 +1,75 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+//ONE TO MAY
+// PERSON TO POST
+
+//represent your table in your db
+model User {
+  id              String       @id @default(uuid())
+  age             Int
+  name            String //? field modifier : ? optional
+  role            Role         @default(BASIC) // simply defualt is basic user sya
+  email           String       @unique //need to be unique
+  userPreferences Preferences?
+  // blob Bytes
+  // blobs Unsupported("")
+  // largeNum BigInt
+  writtenPost     Post[]       @relation("writtenPost")
+  favoritePost    Post[]       @relation("favoritePost")
+  preferencesId   String
+
+  //bawal ang same age same name sa user
+  //ex... ogel,12 === ogel,12 = not pasok boi
+  @@unique([age, name])
+  @@index([email])
+}
+
+model Preferences {
+  id          String  @id @default(uuid())
+  EmailUpdate Boolean
+  User        User    @relation(fields: [UserId], references: [id])
+  UserId      String  @unique
+}
+
+model Post {
+  id       String   @id @default(uuid())
+  title    String
+  rating   Float
+  createAt DateTime @default(now()) //getting the date now to be the set default time
+  updateAt DateTime @updatedAt //update everytime it is use
+
+  author   User   @relation("writtenPost", fields: [authorId], references: [id])
+  authorId String
+
+  favoriteBy   User?   @relation("favoritePost", fields: [favoriteById], references: [id])
+  favoriteById String?
+
+  Category Category[]
+}
+
+model Category {
+  id   String @id @default(uuid())
+  name String @unique
+  post Post[]
+}
+
+//ENUMARATE ROLES
+enum Role {
+  BASIC
+  ADMIN
+}
+
+// after this run  npx prisma migrate to migrate this shit into your db
